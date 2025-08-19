@@ -77,12 +77,9 @@ Excessive usage will be monitored, and we may revoke keys if abused.
 
 ### 📚 Reference
 
-The design of the synthesizer and the Shape DSL is adapted (with permission) from PSET1 in MIT’s Introduction to Program Synthesis, taught by Prof. Armando Solar-Lezama.
+The design of the synthesizer and the Shape DSL is adapted from [PSET1](https://people.csail.mit.edu/asolar/SynthesisCourse/Assignment1.htm) in MIT’s [Introduction to Program Synthesis](https://people.csail.mit.edu/asolar/SynthesisCourse/index.htm), taught by [Prof. Armando Solar-Lezama](https://people.csail.mit.edu/asolar/).
 
-
-Here’s a polished, engaging version of your **Setting up** section in markdown—clearer, a bit more fun, and student-friendly:
-
-# 🚀 Setting Up
+# 🚀 Part 0: Setting Up
 
 First things first—let’s get your environment ready.
 
@@ -92,22 +89,23 @@ First things first—let’s get your environment ready.
    git clone https://github.com/machine-programming/assignment-1
    ```
 
-2. **Move into the assignment directory and install dependencies**
+2. **Move into the assignment directory, create virtual environments, and install dependencies**
 
    ```bash
    cd assignment-1
-   pip install -r requirements.txt
+   python -m venv .venv # creating a virtual environment for this assignment
+   source .venv/bin/activate # change this to other activate scripts if you use shells like fish
+   pip install -r requirements.txt # install the dependencies
    ```
 
 3. **Test your setup (don’t panic if it fails!)**
-   Run the tests for Part 1:
 
    ```bash
-   pytest tests/test_shapes.py
+   python test_part1.py
    ```
 
    You should see the tests run but **all of them fail**.
-   ✅ That’s exactly what we expect—your job in Part 1 is to turn those failures into passes!
+   ✅ That’s exactly what we expect. Your job in Part 1 is to turn those failures into passes!
 
 
 # 🎨 Part 1: Bottom-up Synthesis for Shapes
@@ -132,6 +130,22 @@ Given a set of points with positive/negative labels (`List[Tuple[float, float, b
 
 The image above shows an example with 12 positive and 12 negative points.
 The expected synthesized program was `Subtraction(Circle(5,5,4), Circle(5,5,2))`, which produces a ring.
+
+### 🧪 Running the Synthesizer on Test Cases
+
+To actually apply your synthesizer to the provided test cases, run:
+```
+python test_part1.py
+```
+- At the beginning: you should see synthesis failures (don’t worry—that’s expected).
+- A new folder called `shape_visualization/` will be created. Inside, you’ll find:
+  - Visualization of examples: e.g., `ring_examples.png` (positive/negative coordinates)
+  - Visualization of synthesized program: e.g., `ring_synthesized.png` which is the same as the image above
+- If a test case fails, you’ll only see the examples file (no synthesized visualization).
+- Use these visualizations to get an intuition for what kind of program your synthesizer should be generating.
+
+Once you complete Part 1, rerun this test—you should start seeing synthesized shapes that match the examples.
+It’s also helpful to peek at test_part1.py to see the full set of test cases.
 
 ### 🧩 Understanding the DSL
 
@@ -228,7 +242,6 @@ def eliminate_equivalents(
 ### 🔨 Part 1(c). Bottom-up Synthesizing Shapes
 
 Now is the time to take all that we have already and iteratively synthesize shapes.
-
 
 
 
