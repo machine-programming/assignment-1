@@ -191,6 +191,7 @@ Your task is to implement `grow()`, which:
 Once implemented, your `grow()` function will be the engine that drives bottom-up search over the DSL, which step by step builds increasingly complex shapes.
 
 ``` python
+# TODO
 def grow(
     self,
     program_list: List[Shape],
@@ -210,13 +211,15 @@ Now that you can **grow** shapes, the next challenge is to keep your search spac
 For this, we’ll turn to the more general `BottomUpSynthesizer` (in `enumerative_synthesis.py`) and implement a pruning step: **eliminating observationally equivalent programs**.
 
 Two programs are **observationally equivalent** if they produce the **same outputs** on the **same inputs**. For example, look at these two programs:
-* `Union(Circle(center=(0,0), r=1), Circle(center=(0,0), r=1))`
-* `Circle(center=(0,0), r=1)`
-These two programs are *different syntactically* but *indistinguishable observationally* (their outputs match on all test points).
+* `Union(Circle(0,0,1), Circle(0,0,1))`
+* `Circle(0,0,1)`
+
+These two programs are *different syntactically* but *indistinguishable observationally* (their outputs match on all given test points).
 
 Your job is to filter out duplicates like these so the synthesizer only keeps *unique behaviors*. Please implement the `eliminate_equivalents` function:
 
 ```python
+# TODO
 def eliminate_equivalents(
     self,
     program_list: List[T],
@@ -247,7 +250,12 @@ Now it’s time to put everything together! You’ve implemented **growing** sha
 Head to the function `synthesize()` in `BottomUpSynthesizer` under the file `enumerative_synthesis.py`:
 
 ```python
-def synthesize(self, examples: List[Any], max_iterations: int = 5) -> T:
+# TODO
+def synthesize(
+    self,
+    examples: List[Any],
+    max_iterations: int = 5
+) -> T:
 ```
 
 The **bottom-up synthesis loop** works like this:
@@ -260,7 +268,7 @@ The **bottom-up synthesis loop** works like this:
 
    * **Grow**: expand the program set one level deeper using `grow()`.
    * **Eliminate equivalents**: prune duplicates with `eliminate_equivalents()`.
-   * **Check for success**: after pruning, see if any program satisfies all examples using `is_correct()`.
+   * **Check for success**: while pruning (remember that we are using `yield`), see if any program satisfies all examples using `is_correct()`.
      * If yes → 🎉 return that program immediately.
      * Otherwise → continue expanding.
 
@@ -268,9 +276,9 @@ If no solution is found after `max_iterations`, you may `raise ValueError` (whic
 
 > 💡 Hints & Tips
 >
-> * Use the helper functions! Don’t reinvent wheels—`generate_terminals`, `grow`, `eliminate_equivalents`, and `is_correct` are there to help.
-> * Manage your **cache** carefully—without caching signatures, performance will tank as you repeatedly re-evaluate the same programs.
-> * When calling `eliminate_equivalents`, remember that the **test inputs** are just the `(x, y)` coordinates from the examples.
+> * Use the helper functions! Don’t reinvent wheels. `generate_terminals`, `grow`, `eliminate_equivalents`, and `is_correct` are there to help.
+> * Manage your **cache** carefully. Without caching signatures, performance will tank as you repeatedly re-evaluate the same programs.
+> * When calling `eliminate_equivalents`, remember that the **test inputs** (`test_inputs`) are just the $(x, y)$ coordinates from the examples.
 
 ### 🎁 Wrapping Up Part 1
 
@@ -287,8 +295,10 @@ python test_part1.py
 ```
 
 If all goes well, you’ll see your synthesizer solving the test cases one by one.
+The goal right now would be to make it faster.
 
-For reference, our solution takes about **30 seconds** to pass all test cases on a MacBook Pro with an Apple M1 Pro chip and Python 3.13.0:
+Make sure your synthesizer can pass all test cases within 30 minutes (paralleled) on GradeScope.
+For reference, our solution takes about **30 seconds** to pass all test cases (sequentially) on a MacBook Pro with an Apple M1 Pro chip and Python 3.13.0:
 
 ```bash
 (.venv) ziyang@macbookpro assignment-1> python --version
@@ -305,8 +315,148 @@ Executed in   28.47 secs    fish           external
 
 ✨ Congratulations—you’ve just built your first **bottom-up program synthesizer**!
 
-# Part 2: Bottom-up Synthesis for Strings
+# 🧵 Part 2: Bottom-up Synthesis for Strings
 
+Now that you’ve conquered **shapes**, it’s time to switch gears and build a synthesizer for **string processing**.
 
+A string processing program $f$ is simply a function:
 
-# Part 3: LLM Synthesis for Strings
+$$
+f : \texttt{string} \mapsto \texttt{string}
+$$
+
+For example, Python’s built-in `.strip()` removes whitespace from both ends of a string:
+
+```python
+" hello  ".strip()   ==> "hello"
+"ha ha   ".strip()   ==> "ha ha"
+"  100".strip()      ==> "100"
+```
+
+Just like with shapes, we can **chain operations** to build more powerful transformations.
+
+### 🧩 The String DSL
+
+Instead of starting with a fixed DSL, you will **design your own** string processing DSL. We provide you with two terminals and one operation:
+
+```
+StringExpr ::= InputString              # the program input string
+             | StringLiteral(String)    # a literal string, e.g. "hello"
+             | Concatenate(StringExpr, StringExpr)  # combine two expressions
+             | ...                      # your new operations here!
+```
+
+Your job is to extend this DSL with enough expressive power to solve the test cases.
+
+### 🔍 Understanding the DSL
+
+Each string operation is represented as a Python class that inherits from `StringExpression`. For example, here’s the provided `Concatenate`:
+
+```python
+class Concatenate(StringExpression):
+    def __init__(self, left: StringExpression, right: StringExpression):
+        self.left = left
+        self.right = right
+
+    def interpret(self, input_string: str) -> str:
+        return self.left.interpret(input_string) + self.right.interpret(input_string)
+```
+
+Key points:
+
+* `__init__`: defines the *syntax* of the operation (what arguments it takes).
+* `interpret`: defines the *semantics* (how to evaluate the operation).
+* Implementing `__eq__`, `__hash__`, and `__str__` is highly recommended for debugging and deduplication.
+
+> 👉 Pro tip: don’t handwrite too much boilerplate — LLMs are great at generating these helper methods.
+
+### ✅ Testing Your Solution
+
+Before you begin, run the test script:
+
+```bash
+python test_part2.py
+```
+
+You’ll see all test cases fail initially:
+
+```
+test_get_parent_directory           ✗ FAIL
+test_extract_directory_path         ✗ FAIL
+test_normalize_path_separators      ✗ FAIL
+
+Summary:
+  Total test cases: 25
+  Synthesis succeeded: 0
+  Fully correct: 0
+  Success rate: 0.0%
+  Accuracy rate: 0.0%
+```
+
+Your goal: design your DSL and synthesizer so these tests pass!
+
+### 🎯 Your Task
+
+1. **Extend the DSL** with new operations (Part 2a).
+2. **Implement the grow function** so the synthesizer can explore programs using your DSL (Part 2b).
+
+### Part 2(a): Creating Your Own DSL
+
+Design new operations and add them as classes under `strings.py`.
+
+> **Hints:**
+>
+> * Look at common string functions in Python/Java/C++ for inspiration (e.g., `substring`, `replace`, `find`).
+> * Check the test cases in `test_part2.py` and ask yourself: *What minimal set of operations can solve all of them?*
+> * Start small! Tackle easy test cases first, then add operators as needed.
+
+### Part 2(b): Growing String Expressions
+
+Now look at the `grow()` function in `StringSynthesizer` (`string_synthesizer.py`).
+This should work just like Part 1, except with string operations.
+
+> **Hints:**
+>
+> * For operations that require extra integer arguments (e.g., substring indices), you can use the provided `common_indices = [0, 1, 2, ...]` as candidate constants.
+> * **Pruning is essential**. Without pruning, your search will explode. Examples:
+>   * For `substring(str, start, end)`, skip invalid cases like `start > end`.
+>   * When using `StringLiteral`, only allow literals that actually appear in one of the example outputs.
+> * The more carefully you prune, the faster your synthesizer will run.
+
+### ⚡ Expected Outcome
+
+When everything is working, your synthesizer should solve **all 25 provided test cases** in `test_part2.py`.
+
+For reference, our solution takes about **100 seconds** sequentially on a MacBook Pro (M1 Pro, Python 3.13.0).
+
+```bash
+(.venv) ziyang@macbookpro assignment-1> time python test_part2.py
+...
+Summary:
+  Total test cases: 25
+  Synthesis succeeded: 25
+  Fully correct: 25
+  Success rate: 100.0%
+  Accuracy rate: 100.0%
+
+________________________________________________________
+Executed in  102.80 secs    fish           external
+   usr time  100.87 secs  151.00 micros  100.87 secs
+   sys time    1.25 secs  757.00 micros    1.25 secs
+```
+
+✅ You will receive full credit if your synthesizer finishes all test cases within **30 minutes (parallelized)**.
+
+---
+
+### 🚨 Note on Hard Test Cases
+
+There are additional **hard test cases** (see `get_hard_test_cases`) that we do not expect your DSL + synthesizer to solve (at least not without exponential blowup).
+
+You can run them with:
+
+```bash
+python test_part2.py --hard
+```
+
+Feel free to try, but beware of the combinatorial explosion.
