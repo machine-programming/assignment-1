@@ -239,12 +239,71 @@ def eliminate_equivalents(
 > - **Important**: use `yield` instead of returning a list. This way, the synthesizer can stop early if it finds a successful program before exhausting the search space.
 > - The `cache` is your friend: store previously computed outputs there to save time when the same program shows up again.
 
+
 ### 🔨 Part 1(c). Bottom-up Synthesizing Shapes
 
-Now is the time to take all that we have already and iteratively synthesize shapes.
+Now it’s time to put everything together! You’ve implemented **growing** shapes and **eliminating duplicates**—the final step is to iteratively **synthesize a shape that matches all the examples**.
 
+Head to the function `synthesize()` in `BottomUpSynthesizer` under the file `enumerative_synthesis.py`:
 
+```python
+def synthesize(self, examples: List[Any], max_iterations: int = 5) -> T:
+```
 
+The **bottom-up synthesis loop** works like this:
+
+1. **Start with terminals**
+
+   * Generate the set of all terminal programs (`generate_terminals()`) and store them.
+
+2. **Iterate up to `max_iterations` times**:
+
+   * **Grow**: expand the program set one level deeper using `grow()`.
+   * **Eliminate equivalents**: prune duplicates with `eliminate_equivalents()`.
+   * **Check for success**: after pruning, see if any program satisfies all examples using `is_correct()`.
+     * If yes → 🎉 return that program immediately.
+     * Otherwise → continue expanding.
+
+If no solution is found after `max_iterations`, you may `raise ValueError` (which is already provided).
+
+> 💡 Hints & Tips
+>
+> * Use the helper functions! Don’t reinvent wheels—`generate_terminals`, `grow`, `eliminate_equivalents`, and `is_correct` are there to help.
+> * Manage your **cache** carefully—without caching signatures, performance will tank as you repeatedly re-evaluate the same programs.
+> * When calling `eliminate_equivalents`, remember that the **test inputs** are just the `(x, y)` coordinates from the examples.
+
+### 🎁 Wrapping Up Part 1
+
+Once you’ve implemented all three core functions:
+
+* `grow()` in `shape_synthesizer.py`
+* `eliminate_equivalents()` in `enumerative_synthesis.py`
+* `synthesize()` in `enumerative_synthesis.py`
+
+…it’s time to test your synthesizer:
+
+```bash
+python test_part1.py
+```
+
+If all goes well, you’ll see your synthesizer solving the test cases one by one.
+
+For reference, our solution takes about **30 seconds** to pass all test cases on a MacBook Pro with an Apple M1 Pro chip and Python 3.13.0:
+
+```bash
+(.venv) ziyang@macbookpro assignment-1> python --version
+Python 3.13.0
+(.venv) ziyang@macbookpro assignment-1> time python test_part1.py
+...
+Testing: random_test_10
+✅ random_test_10: PASSED
+________________________________________________________
+Executed in   28.47 secs    fish           external
+   usr time   27.63 secs  169.00 micros   27.63 secs
+   sys time    0.59 secs  748.00 micros    0.59 secs
+```
+
+✨ Congratulations—you’ve just built your first **bottom-up program synthesizer**!
 
 # Part 2: Bottom-up Synthesis for Strings
 
