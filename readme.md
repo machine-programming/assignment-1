@@ -112,7 +112,7 @@ First things first—let’s get your environment ready.
 
 # 🎨 Part 1: Bottom-up Synthesis for Shapes
 
-![ring-synthesized](images/ring_synthesized.png)
+![ring-synthesized](docs/ring_synthesized.png)
 
 In this part, we’ll explore a Domain-Specific Language (DSL) for shapes.
 This DSL gives you a palette of basic shapes (rectangle, triangle, circle) and shape operations (union, intersection, mirror, subtraction).
