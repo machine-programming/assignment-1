@@ -33,10 +33,10 @@ You will implement several key functions for each part:
 
 ### 📌 Grading criteria:
 
-- **Parts 1 & 2**: Autograded. Full credit if you pass all tests within 30 minutes of runtime.
+- **Parts 1 & 2**: Autograded. Full credit if you pass all tests within 10 minutes of runtime.
   (Hint: the reference solution runs most tasks in <1s, hardest ones in <10s.)
-- **Part 3**: Graded manually. Your LLM must solve at least 60% of test cases.
-  Upload your llm_synthesis_report.json with all prompts/responses—it’s your proof of work.
+- **Part 3**: Autograded. Your LLM must solve at least 80% of test cases.
+  Upload your llm_synthesis_report.json with all prompts/responses.
 
 For Gradescope submission, zip the following 6 (or 7) files:
 - `strings.py`
@@ -45,7 +45,7 @@ For Gradescope submission, zip the following 6 (or 7) files:
 - `string_synthesizer.py`
 - `llm_string_synthesizer.py`
 - `llm_synthesis_report.json`
-- (Optional) `readme.md` — for notes, acknowledgements, and AI/collaboration credits.
+- (Optional) `readme.md` — for notes, acknowledgements, and AI/collaboration credits, specified below.
 
 ### 🤝 Collaboration Policy
 
@@ -77,7 +77,7 @@ Excessive usage will be monitored, and we may revoke keys if abused.
 
 ### 📚 Reference
 
-The design of the synthesizer and the Shape DSL is adapted from [PSET1](https://people.csail.mit.edu/asolar/SynthesisCourse/Assignment1.htm) in MIT’s [Introduction to Program Synthesis](https://people.csail.mit.edu/asolar/SynthesisCourse/index.htm), taught by [Prof. Armando Solar-Lezama](https://people.csail.mit.edu/asolar/).
+The design of the synthesizer and the Shape DSL is adapted from [pset1](https://people.csail.mit.edu/asolar/SynthesisCourse/Assignment1.htm) in MIT’s [Introduction to Program Synthesis](https://people.csail.mit.edu/asolar/SynthesisCourse/index.htm), taught by [Prof. Armando Solar-Lezama](https://people.csail.mit.edu/asolar/).
 
 # 🚀 Part 0: Setting Up
 
@@ -205,7 +205,7 @@ def grow(
 > - Progress tracking:
 >   When you start generating large numbers of programs, visualization helps. Use `tqdm` to show a progress bar and keep your sanity.
 
-### 🔨 Part 1(b). Eliminating (Observationally) Equivalent Shapes
+### 🔨 Part 1(b). Eliminating Observationally Equivalent Shapes
 
 Now that you can **grow** shapes, the next challenge is to keep your search space from exploding.
 For this, we’ll turn to the more general `BottomUpSynthesizer` (in `enumerative_synthesis.py`) and implement a pruning step: **eliminating observationally equivalent programs**.
@@ -238,10 +238,7 @@ def eliminate_equivalents(
 > 💡 Hints & Tips
 > - Use the provided `compute_signature()` method (already implemented) to evaluate programs and produce signatures. These signatures will be your deduplication keys.
 > - Keep track of which signatures you’ve already seen using `Set` or `Dict`.
-> Be careful: different programs may map to the *same* signature—yield only the first and discard the rest.
 > - **Important**: use `yield` instead of returning a list. This way, the synthesizer can stop early if it finds a successful program before exhausting the search space.
-> - The `cache` is your friend: store previously computed outputs there to save time when the same program shows up again.
-
 
 ### 🔨 Part 1(c). Bottom-up Synthesizing Shapes
 
@@ -280,15 +277,9 @@ If no solution is found after `max_iterations`, you may `raise ValueError` (whic
 > * Manage your **cache** carefully. Without caching signatures, performance will tank as you repeatedly re-evaluate the same programs.
 > * When calling `eliminate_equivalents`, remember that the **test inputs** (`test_inputs`) are just the $(x, y)$ coordinates from the examples.
 
-### 🎁 Wrapping Up Part 1
+### ⚡ Expected Outcome
 
-Once you’ve implemented all three core functions:
-
-* `grow()` in `shape_synthesizer.py`
-* `eliminate_equivalents()` in `enumerative_synthesis.py`
-* `synthesize()` in `enumerative_synthesis.py`
-
-…it’s time to test your synthesizer:
+Once you’ve implemented all three core functions, it’s time to test your synthesizer:
 
 ```bash
 python test_part1.py
@@ -297,7 +288,7 @@ python test_part1.py
 If all goes well, you’ll see your synthesizer solving the test cases one by one.
 The goal right now would be to make it faster.
 
-Make sure your synthesizer can pass all test cases within 30 minutes (paralleled) on GradeScope.
+Make sure your synthesizer can pass all test cases within **10 minutes** (paralleled) on GradeScope.
 For reference, our solution takes about **30 seconds** to pass all test cases (sequentially) on a MacBook Pro with an Apple M1 Pro chip and Python 3.13.0:
 
 ```bash
@@ -415,6 +406,15 @@ Design new operations and add them as classes under `strings.py`.
 Now look at the `grow()` function in `StringSynthesizer` (`string_synthesizer.py`).
 This should work just like Part 1, except with string operations.
 
+``` python
+# TODO
+def grow(
+    self,
+    program_list: List[StringExpression],
+    examples: List[Tuple[str, str]]
+) -> List[StringExpression]:
+```
+
 > **Hints:**
 >
 > * For operations that require extra integer arguments (e.g., substring indices), you can use the provided `common_indices = [0, 1, 2, ...]` as candidate constants.
@@ -445,9 +445,7 @@ Executed in  102.80 secs    fish           external
    sys time    1.25 secs  757.00 micros    1.25 secs
 ```
 
-✅ You will receive full credit if your synthesizer finishes all test cases within **30 minutes (parallelized)**.
-
----
+✅ You will receive full credit if your synthesizer finishes all test cases within **10 minutes (parallelized)**.
 
 ### 🚨 Note on Hard Test Cases
 
@@ -460,3 +458,93 @@ python test_part2.py --hard
 ```
 
 Feel free to try, but beware of the combinatorial explosion.
+
+# 🤖 Part 3: LLM Synthesis for Strings
+
+We’ve now reached the final stage. At the age of **foundation models**, why not invite an LLM to help us synthesize string expressions in your very own DSL?
+LLM would address the limitation of the combinatorial explosion as well as the requirement for pre-defined terminals in bottom-up synthesis.
+
+In this part, you will implement two functions inside `llm_string_synthesizer.py`:
+
+* **`generate_prompt(examples: List[Tuple[str, str]])`**
+  Generate a prompt string that instructs the LLM to synthesize a program in your DSL.
+
+* **`extract_program(response: str)`**
+  Parse the LLM’s output back into a program, represented as a Python `StringExpression` object.
+
+Once implemented, test your solution by running:
+
+```bash
+python test_part3.py
+```
+
+Initially, all the test cases should be expected to fail.
+
+### Part 3(a): Prompting the LLM
+
+Your `generate_prompt(examples)` function should carefully craft a **prompt** for the LLM.
+At a minimum, the prompt should include:
+
+* Clear **instructions** for generating programs, including the required response format.
+* A **description of your DSL**, including every operation, its syntax, and its semantics (what it does).
+* A nicely formatted list of **input-output examples** for the LLM to learn from.
+
+The return value should be a single string, which will be passed directly to the LLM.
+
+### Part 3(b): Parsing LLM Outputs
+
+The LLM’s response needs to be turned back into a valid DSL program.
+
+* Implement this logic in `extract_program(response: str)`.
+* Depending on your prompt design, parsing may involve:
+  * Direct evaluation of the response (e.g., with Python’s `eval`)
+  * Or custom parsing if the output is more free-form
+* If the response cannot be parsed, raise an error. Otherwise, return a concrete `StringExpression` object.
+
+### ⚡ Expected Outcome
+
+When you run:
+
+```bash
+python test_part3.py
+```
+
+You should see output like the following:
+
+```
+================================================================================
+PART 3: LLM-BASED STRING SYNTHESIS TESTING
+================================================================================
+
+============================================================
+Testing: test_formal_greeting
+============================================================
+Examples:
+  1. 'hello' -> 'HELLO'
+  2. 'world' -> 'WORLD'
+  3. 'python' -> 'PYTHON'
+  4. 'synthesis' -> 'SYNTHESIS'
+  5. 'programming' -> 'PROGRAMMING'
+
+Running LLM synthesis...
+Synthesized program: <HIDDEN>
+
+Verification:
+  1. ✓ 'hello' -> 'HELLO' (expected: 'HELLO')
+  2. ✓ 'world' -> 'WORLD' (expected: 'WORLD')
+  3. ✓ 'python' -> 'PYTHON' (expected: 'PYTHON')
+  4. ✓ 'synthesis' -> 'SYNTHESIS' (expected: 'SYNTHESIS')
+  5. ✓ 'programming' -> 'PROGRAMMING' (expected: 'PROGRAMMING')
+🎉 SUCCESS: Program works correctly on all examples!
+```
+
+As a by-product, a **`.json` report** will be generated in your working directory.
+Do not modify this file manually — just submit it along with your code.
+
+### 🎯 Grading Criteria
+
+* You will receive **full credit** if Gemini 2.5 Pro, using your prompt, can pass at least **60% of the test cases** (there are a total of 53).
+* As a reference, our sample solution achieves about **95% success rate**.
+
+✨ That’s it — you’ve completed the full cycle: from **bottom-up synthesis** (Part 1 & 2) to **LLM-assisted synthesis** (Part 3). Congratulations!
+Please zip the relevant files and submit your assignment on GradeScope!
