@@ -274,7 +274,7 @@ python test_part1.py
 If all goes well, you’ll see your synthesizer solving the test cases one by one.
 The goal right now would be to make it faster.
 
-Make sure your synthesizer can pass all test cases within **10 minutes** (paralleled) on GradeScope.
+Make sure your synthesizer can pass all test cases within **10 minutes** on GradeScope.
 For reference, our solution takes about **30 seconds** to pass all test cases (sequentially) on a MacBook Pro with an Apple M1 Pro chip and Python 3.13.0:
 
 ```bash
@@ -399,19 +399,7 @@ Ran 28 tests in 100.364s
 OK (skipped=3)
 ```
 
-✅ You will receive full credit if your synthesizer finishes all test cases within **10 minutes (parallelized)**.
-
-### 🚨 Note on Hard Test Cases
-
-There are additional **hard test cases** (see `get_hard_test_cases`) that we do not expect your DSL + synthesizer to solve (at least not without exponential blowup).
-
-You can run them with:
-
-```bash
-python test_part2.py --hard
-```
-
-Feel free to try, but beware of the combinatorial explosion.
+✅ You will receive full credit if your synthesizer finishes all test cases within **10 minutes**.
 
 # 🤖 Part 3: LLM Synthesis for Strings
 
