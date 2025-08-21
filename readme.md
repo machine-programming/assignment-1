@@ -74,6 +74,7 @@ Excessive usage will be monitored, and we may revoke keys if abused.
 
 - **Parts 1 & 2**: It’s fine to add smart heuristics in your DSL or synthesizer, but don’t hardcode answers to test cases—that defeats the purpose.
 - **Part 3**: Don’t fake the LLM’s output in your `.jsonl` report. Both successes and failures are valuable learning outcomes in this course.
+- Please do not publicize your solutions online.
 
 ### 📚 Reference
 
