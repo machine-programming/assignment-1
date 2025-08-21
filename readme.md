@@ -36,7 +36,7 @@ You will implement several key functions for each part:
 - **Parts 1 & 2**: Autograded. Full credit if you pass all tests within 10 minutes of runtime.
   (Hint: the reference solution runs most tasks in <1s, hardest ones in <10s.)
 - **Part 3**: Autograded. Your LLM must solve at least 80% of test cases.
-  Upload your llm_synthesis_report.json with all prompts/responses.
+  Upload your `llm_synthesis_report.jsonl` with all prompts/responses.
 
 For Gradescope submission, zip the following 6 (or 7) files:
 - `strings.py`
@@ -44,22 +44,22 @@ For Gradescope submission, zip the following 6 (or 7) files:
 - `shape_synthesizer.py`
 - `string_synthesizer.py`
 - `llm_string_synthesizer.py`
-- `llm_synthesis_report.json`
-- (Optional) `readme.md` — for notes, acknowledgements, and AI/collaboration credits, specified below.
+- `llm_synthesis_report.jsonl`
+- (Optional) `acknowledgements.md` — for notes, acknowledgements, and AI/collaboration credits, specified below.
 
 ### 🤝 Collaboration Policy
 
 You are encouraged to discuss ideas with peers.
 Do not copy code directly.
 Implement your own solution.
-If you collaborate (e.g., pair programming, brainstorming), credit your collaborators clearly in your `readme.md`.
+If you collaborate (e.g., pair programming, brainstorming), credit your collaborators clearly in your `acknowledgements.md`.
 
 ### 🤖 Using AI in This Assignment
 
 This is a Machine Programming course—of course you can use LLMs!
 LLMs can be great debugging partners, but they won’t give you a working solution right away.
 Prompt iteratively, and show that you understand the synthesis algorithms.
-Save interesting prompts + responses, and include them in your `readme.md`.
+Save interesting prompts + responses, and include them in your `acknowledgements.md`.
 Be explicit about which model you used.
 
 ### 🔑 LLM API Key for Part 3
@@ -73,7 +73,7 @@ Excessive usage will be monitored, and we may revoke keys if abused.
 ### 🧭 Integrity Guidelines
 
 - **Parts 1 & 2**: It’s fine to add smart heuristics in your DSL or synthesizer, but don’t hardcode answers to test cases—that defeats the purpose.
-- **Part 3**: Don’t fake the LLM’s output in your `.json` report. Both successes and failures are valuable learning outcomes in this course.
+- **Part 3**: Don’t fake the LLM’s output in your `.jsonl` report. Both successes and failures are valuable learning outcomes in this course.
 
 ### 📚 Reference
 
