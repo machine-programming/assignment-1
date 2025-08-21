@@ -70,6 +70,8 @@ Please do not share it, especially outside of the class.
 Typical usage for this assignment should not exceed $10.
 Excessive usage will be monitored, and we may revoke keys if abused.
 
+TODO: Say that public llm key will be revoked automatically.
+
 ### 🧭 Integrity Guidelines
 
 - **Parts 1 & 2**: It’s fine to add smart heuristics in your DSL or synthesizer, but don’t hardcode answers to test cases—that defeats the purpose.
@@ -436,13 +438,38 @@ In this part, you will work on step 1 and step 4 by implementing two functions i
 * **`extract_program(response: str)`**
   Parse the LLM’s output back into a program, represented as a Python `StringExpression` object.
 
-Once implemented, test your solution by running:
+### 🔑 Use of LLM Keys
+
+By now, you should have received an **API key** from us that allows you to invoke **Google Gemini 2.5 Pro**.
+The key looks like `AIxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-xxxx`.
+When properly set, this key will grant you permission to query the LLM and obtain responses.
+
+👉 If you have **not** received a key from us, you may also register a new Google account and claim a **\$300 free credit** at [Google Vertex AI](https://cloud.google.com/vertex-ai) to obtain your own key.
+
+### ⚙️ Setting the API Key
+
+You’ll need to expose the key as an **environment variable**. In bash:
+
+```bash
+export GEMINI_API_KEY=<YOUR-GEMINI-API-KEY-HERE>
+```
+
+Check that it’s set correctly:
+
+```bash
+echo $GEMINI_API_KEY
+```
+
+If successful, your key should be printed to the terminal.
+Once set, you’re ready to use Gemini for **Part 3 of this assignment**.
+
+### 🧪 Testing Your Output
+
+After implementing `generate_prompt` and `extract_program`, run:
 
 ```bash
 python test_part3.py
 ```
-
-Initially, all the test cases should be expected to fail.
 
 ### Part 3(a): Prompting the LLM
 
@@ -473,20 +500,42 @@ When you run:
 python test_part3.py
 ```
 
-As a by-product, a **`llm_synthesis_report.jsonl`** will be generated in your working directory.
-It logs all the prompt, responses, and potential errors.
-Do not modify this file manually and just submit it along with your code.
-We are going to use this file to grade your Part 3 code.
+you should see something like:
+
+```
+============================================================
+PART 3: LLM-BASED PROGRAM SYNTHESIS TESTS
+============================================================
+...
+----------------------------------------------------------------------
+Ran 43 tests in 954.399s
+
+FAILED (failures=3, skipped=3)
+```
+
+**Interpreting the results**
+
+* **Passed = Total − Failures − Skipped**
+  In the example above: `43 − 3 − 3 = 37` passed.
+* Your exact counts may vary slightly depending on your DSL and prompt.
+
+As a by-product, a **`llm_synthesis_report.jsonl`** file will be generated in your working directory.
+It logs all prompts, responses, and any errors, and is extremely helpful for debugging.
+
+* Each run **overwrites** the previous report. Keep a copy if you want to maintain history.
+* **Do not modify** this file manually—it violates the integrity guideline and we use it for grading.
+
+Please submit the **`.jsonl`** report along with your code.
 
 ### 🎯 Grading Criteria
 
-* You will receive **full credit** if Gemini 2.5 Pro, using your prompt, can pass at least **60% of the test cases** (there are a total of 53).
-* As a reference, our sample solution achieves about **95% success rate**.
+* You will receive **full credit** if Gemini 2.5 Pro, using your prompt, passes at least **80% of the test cases**.
+  There are **40** graded test cases (excluding the 3 skipped), so you must pass **≥ 32**.
+* As a reference, our sample solution achieves about **92.5%** (e.g., `37/40`).
 
 # Wrapping Up
 
-✨ That’s it — you’ve completed the full cycle: from **bottom-up synthesis** (Part 1 & 2) to **LLM-assisted synthesis** (Part 3). Congratulations!
-Please zip the relevant files and submit your assignment on GradeScope!
+✨ That’s it—you’ve completed the full cycle: from **bottom-up synthesis** (Parts 1 & 2) to **LLM-assisted synthesis** (Part 3). Please zip the relevant files and submit on Gradescope (including your **`llm_synthesis_report.jsonl`**).
 
-Take a few seconds to think about the pros and cons of having LLM synthesizing operations.
-What do we additionally need to have LLM synthesize shapes (Part 1) by only giving it the example points?
+Before you go: take a moment to reflect—**what are the pros and cons of LLM-synthesized operations?**
+And, **what extra ingredients** would you need to have an LLM synthesize **shapes** (Part 1) from points alone (e.g., constraints, canonical forms, or explicit semantics)?
