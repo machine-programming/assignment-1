@@ -70,7 +70,7 @@ Please do not share it, especially outside of the class.
 Typical usage for this assignment should not exceed $10.
 Excessive usage will be monitored, and we may revoke keys if abused.
 
-TODO: Say that public llm key will be revoked automatically.
+> Note: if you somehow published your API key to Github publicly, an automated script will detect it and revoke your key.
 
 ### 🧭 Integrity Guidelines
 
